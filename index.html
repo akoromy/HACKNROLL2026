@@ -8,31 +8,62 @@
 <body>
 
   <h1>CleanCode 🧼</h1>
-  <p>Refactor your hygiene habits.</p>
+  <p class="subtitle">Refactor your hygiene habits.</p>
 
-  <label>How active are you?</label>
-  <select id="activity">
-    <option value="low">Low</option>
-    <option value="medium">Medium</option>
-    <option value="high">High</option>
-  </select>
+  <!-- SETTINGS -->
+  <div class="card">
+    <h2>Your Lifestyle</h2>
 
-  <label>Do you sweat easily?</label>
-  <select id="sweat">
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-  </select>
+    <label>Activity level</label>
+    <select id="activity">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
 
-  <label>How busy are you?</label>
-  <select id="busy">
-    <option value="chill">Not busy</option>
-    <option value="normal">Normal</option>
-    <option value="chaos">Very busy</option>
-  </select>
+    <label>Sweat easily?</label>
+    <select id="sweat">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
 
-  <button onclick="generatePlan()">Generate My Hygiene Plan</button>
+    <label>How busy are you?</label>
+    <select id="busy">
+      <option value="chill">Not busy</option>
+      <option value="normal">Normal</option>
+      <option value="chaos">Very busy</option>
+    </select>
 
-  <div id="output"></div>
+    <label>
+      <input type="checkbox" id="savage">
+      Savage mode 😈
+    </label>
+
+    <button onclick="generatePlan()">Generate Hygiene Plan</button>
+  </div>
+
+  <!-- PLAN OUTPUT -->
+  <div class="card" id="plan"></div>
+
+  <!-- TRACKER -->
+  <div class="card">
+    <h2>Today’s Hygiene Tracker</h2>
+
+    <label><input type="checkbox" id="shower"> Showered</label>
+    <label><input type="checkbox" id="teeth"> Brushed teeth (2x)</label>
+    <label><input type="checkbox" id="deo"> Used deodorant</label>
+    <label><input type="checkbox" id="clothes"> Changed clothes</label>
+
+    <button onclick="saveToday()">Save Today</button>
+  </div>
+
+  <!-- STREAK & ACHIEVEMENTS -->
+  <div class="card">
+    <h2>Progress</h2>
+    <p>🔥 Current streak: <span id="streak">0</span> days</p>
+    <p>🏆 Achievements:</p>
+    <ul id="achievements"></ul>
+  </div>
 
   <script src="script.js"></script>
 </body>
