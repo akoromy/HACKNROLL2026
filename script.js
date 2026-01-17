@@ -1,3 +1,16 @@
+const gentleReminders = [
+  "A quick shower can reset your whole day 🙂",
+  "Clean habits help your mind too.",
+  "Small care, big difference."
+];
+
+const savageReminders = [
+  "Your code compiles. You don't.",
+  "This is not a bug. It's your smell.",
+  "Even garbage collection exists for a reason.",
+  "You’ve been idle longer than your deodorant."
+];
+
 // LOAD DATA
 let streak = Number(localStorage.getItem("streak")) || 0;
 let lastDate = localStorage.getItem("lastDate") || "";
