@@ -4,6 +4,8 @@ let state = JSON.parse(localStorage.getItem("state")) || {
   level: 1,
   habits: [],
   days: {},
+  props: 0,
+  streak: 0,
   customGoals: []
 };
 
@@ -28,6 +30,7 @@ function render() {
   renderXP();
   renderCalendar();
   renderPlan();
+  renderProps();
   save();
 }
 
@@ -70,6 +73,10 @@ function renderCalendar() {
   }
 }
 
+function renderProps() {
+  propsText.innerText = `Make-up props: ${state.props}`;
+}
+
 function renderPlan() {
   planList.innerHTML = "";
   [...state.habits, ...state.customGoals].forEach(h => {
@@ -86,9 +93,50 @@ function completeHabit(i) {
   render();
 }
 
-function completeDay() {
-  const key = new Date().toISOString().slice(0,10);
-  state.days[key] = true;
+function completeDay(useProp = false) {
+  const today = new Date();
+  const todayKey = today.toISOString().slice(0, 10);
+
+  // If using a prop, mark yesterday instead of today
+  let dayKey = todayKey;
+  if (useProp) {
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    dayKey = yesterday.toISOString().slice(0, 10);
+
+    if (state.props > 0) {
+      state.props--;
+      alert("You used a make-up prop for yesterday! 🎉");
+    } else {
+      alert("No props left!");
+      return;
+    }
+  }
+
+  // Mark the day as completed
+  state.days[dayKey] = true;
+
+  // ----------- STREAK CALCULATION -----------
+  // Streak = consecutive completed days ending today
+  let streak = 0;
+  for (let i = 0; i < 30; i++) {
+    const d = new Date();
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    if (state.days[key]) {
+      streak++;
+    } else {
+      break; // stop at first missed day
+    }
+  }
+  state.streak = streak;
+
+  // Reward prop every 21-day streak
+  if (streak > 0 && streak % 7 === 0) {
+    state.props++;
+    alert("Congrats! You earned a make-up prop for a 21-day streak! 🌟");
+  }
+
   render();
 }
 
@@ -117,6 +165,13 @@ const quests = [
   "Reflect today"
 ];
 dailyQuest.innerText = quests[Math.floor(Math.random()*quests.length)];
+
+function useProp() {
+  const confirmUse = confirm("Use a make-up prop for yesterday?");
+  if (confirmUse) {
+    completeDay(true); // mark yesterday as completed
+  }
+}
 
 function completeQuest() {
   state.xp += 30;
