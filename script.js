@@ -1,69 +1,118 @@
-/************** TODAY'S CHECKLIST **************/
-const tasks = [
-  "Brush teeth",
-  "Wash face",
-  "Shower",
-  "Drink water",
-  "Skincare routine"
+// ---------- DATA ----------
+const todayKey = new Date().toISOString().slice(0,10);
+const data = JSON.parse(localStorage.getItem("hygieneData")) || {};
+const badges = [
+  { id: "3", label: "3-Day Starter", days: 3 },
+  { id: "7", label: "1-Week Solid", days: 7 },
+  { id: "14", label: "2-Week Consistent", days: 14 },
+  { id: "25", label: "25-Day Champion", days: 25 }
 ];
 
-const todayKey = new Date().toDateString();
-const saved = JSON.parse(localStorage.getItem(todayKey)) || {};
+// ---------- DAILY FEED ----------
+const feed = [
+  "Consistency beats intensity.",
+  "Done imperfectly > not done.",
+  "Future you benefits from small wins.",
+  "Momentum starts with one action."
+];
+document.getElementById("dailyFeed").innerText =
+  feed[Math.floor(Math.random() * feed.length)];
 
-const checklist = document.getElementById("checklist");
+// ---------- SAVE DAY ----------
+function saveDay() {
+  const habits = [...document.querySelectorAll("[data-habit]")]
+    .reduce((acc, el) => {
+      acc[el.dataset.habit] = el.checked;
+      return acc;
+    }, {});
 
-tasks.forEach(task => {
-  const li = document.createElement("li");
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.checked = saved[task] || false;
+  data[todayKey] = {
+    habits,
+    reflection: document.getElementById("reflection").value
+  };
 
-  checkbox.addEventListener("change", () => {
-    saved[task] = checkbox.checked;
-    localStorage.setItem(todayKey, JSON.stringify(saved));
-  });
-
-  li.appendChild(checkbox);
-  li.append(" " + task);
-  checklist.appendChild(li);
-});
-
-/************** STREAK CALENDAR (MONTH) **************/
-const calendar = document.getElementById("calendar");
-const daysInMonth = new Date(
-  new Date().getFullYear(),
-  new Date().getMonth() + 1,
-  0
-).getDate();
-
-for (let i = 1; i <= daysInMonth; i++) {
-  const day = document.createElement("span");
-  day.textContent = i;
-  day.style.margin = "4px";
-  day.style.display = "inline-block";
-  day.style.width = "24px";
-  day.style.borderRadius = "50%";
-  day.style.background = "#ffd6e8";
-  calendar.appendChild(day);
+  localStorage.setItem("hygieneData", JSON.stringify(data));
+  renderAll();
 }
 
-/************** YEAR VIEW **************/
-document.getElementById("calendarCard").onclick = () => {
-  alert("📅 Yearly streak view (future expansion)");
-};
+// ---------- STREAK ----------
+function calculateStreak() {
+  let streak = 0;
+  let d = new Date();
+  while (true) {
+    const key = d.toISOString().slice(0,10);
+    if (data[key] && Object.values(data[key].habits).every(Boolean)) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
+  return streak;
+}
 
-/************** CHICKEN SOUP **************/
-const quotes = [
-  "You’re doing better than you think 🌱",
-  "Small steps still move you forward 🐾",
-  "Consistency beats perfection 💖",
-  "Taking care of yourself matters 🌸"
-];
+// ---------- CALENDAR ----------
+function renderCalendar() {
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
 
-document.getElementById("quote").textContent =
-  quotes[Math.floor(Math.random() * quotes.length)];
+  for (let i = 1; i <= 30; i++) {
+    const key = `${todayKey.slice(0,8)}${String(i).padStart(2,"0")}`;
+    const div = document.createElement("div");
+    div.className = "day";
 
-/************** BADGES **************/
-document.getElementById("badgeCard").onclick = () => {
-  alert("🏅 All badges:\n• Beginner\n• 7-Day Streak\n• Hygiene Hero");
-};
+    if (data[key]) {
+      const ok = Object.values(data[key].habits).every(Boolean);
+      div.classList.add(ok ? "good" : "bad");
+    }
+
+    div.innerText = i;
+    cal.appendChild(div);
+  }
+}
+
+// ---------- BADGES ----------
+function toggleBadges() {
+  const board = document.getElementById("badgeBoard");
+  board.classList.toggle("hidden");
+}
+
+function renderBadges(streak) {
+  const board = document.getElementById("badgeBoard");
+  board.innerHTML = "";
+
+  badges.forEach(b => {
+    const div = document.createElement("div");
+    div.className = "badge " + (streak >= b.days ? "unlocked" : "");
+    div.innerText = b.label;
+    board.appendChild(div);
+  });
+}
+
+// ---------- PROGRESS ----------
+function renderProgress() {
+  const today = data[todayKey];
+  if (!today) return;
+
+  const total = Object.keys(today.habits).length;
+  const done = Object.values(today.habits).filter(Boolean).length;
+  const pct = Math.round((done / total) * 100);
+
+  document.getElementById("progressRing").innerText = `${pct}%`;
+  document.getElementById("completionText").innerText =
+    `${done}/${total} habits completed`;
+}
+
+// ---------- THEME ----------
+function setTheme(theme) {
+  document.body.dataset.theme = theme;
+}
+
+// ---------- RENDER ----------
+function renderAll() {
+  const streak = calculateStreak();
+  document.getElementById("streak").innerText = streak;
+  renderCalendar();
+  renderBadges(streak);
+  renderProgress();
+}
+
+renderAll();
