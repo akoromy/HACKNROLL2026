@@ -1,8 +1,8 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f6f8;
-  padding: 30px;
-  max-width: 500px;
+  background: #eef2f5;
+  padding: 20px;
+  max-width: 600px;
   margin: auto;
 }
 
@@ -10,9 +10,22 @@ h1 {
   text-align: center;
 }
 
+.subtitle {
+  text-align: center;
+  color: #555;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
 label {
   display: block;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 select, button {
@@ -22,13 +35,11 @@ select, button {
 }
 
 button {
-  margin-top: 20px;
-  font-size: 16px;
+  margin-top: 15px;
+  font-size: 15px;
+  cursor: pointer;
 }
 
-#output {
-  background: white;
-  padding: 15px;
-  margin-top: 20px;
-  border-radius: 8px;
+ul {
+  padding-left: 20px;
 }
