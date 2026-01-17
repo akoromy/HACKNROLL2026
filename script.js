@@ -71,39 +71,31 @@ const dayDetails = document.getElementById("dayDetails");
 function renderCalendar() {
   calendar.innerHTML = "";
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const today = getToday();
 
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let i = 0; i < 7; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    const dayStr = date.toISOString().split("T")[0];
 
-  for (let i = 0; i < firstDay; i++) {
-    calendar.appendChild(document.createElement("div"));
-  }
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "calendar-day";
+    dayDiv.innerText = dayStr.slice(5);
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const div = document.createElement("div");
-    div.textContent = d;
-    div.className = "calendar-day";
+    if (dayTasks[dayStr]) {
+      const tasks = Object.values(dayTasks[dayStr]);
 
-    if (completedDays.includes(dateStr)) {
-      div.classList.add("completed");
+      const allDone = tasks.length > 0 && tasks.every(v => v === true);
+      const someUndone = tasks.some(v => v === false);
+
+      if (allDone) {
+        dayDiv.classList.add("completed");
+      } else if (someUndone) {
+        dayDiv.classList.add("incomplete"); // 👈 NEW
+      }
     }
 
-    div.onclick = () => {
-      const tasks = dayTasks[dateStr];
-      if (!tasks) {
-        dayDetails.textContent = "No data for this day.";
-      } else {
-        dayDetails.innerHTML = tasks
-          .map(t => `${t.done ? "✅" : "❌"} ${t.name}`)
-          .join("<br>");
-      }
-    };
-
-    calendar.appendChild(div);
+    calendar.appendChild(dayDiv);
   }
 }
 
