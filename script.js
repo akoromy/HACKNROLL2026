@@ -1,125 +1,188 @@
-// ---------- STATE ----------
-let state = JSON.parse(localStorage.getItem("state")) || {
-  xp: 0,
-  level: 1,
-  habits: [],
-  days: {},
-  customGoals: []
+// ---------- FIREBASE ----------
+
+  // 🔥 PASTE YOUR CONFIG HERE
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCZhgTtPGZhxU3DtvOeXP8xSO9QhyGvFtg",
+  authDomain: "cleancoder-aa2f4.firebaseapp.com",
+  projectId: "cleancoder-aa2f4",
+  storageBucket: "cleancoder-aa2f4.firebasestorage.app",
+  messagingSenderId: "842404335141",
+  appId: "1:842404335141:web:dc61a36af6b62c87dcf9cc",
+  measurementId: "G-WQ9WC59Y9J"
 };
 
-const BASE_HABITS = [
-  { name: "Shower 🚿", xp: 20 },
-  { name: "Brush Teeth 🦷", xp: 15 },
-  { name: "Deodorant 🧴", xp: 10 }
-];
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-// ---------- INIT ----------
-function init() {
-  if (state.habits.length === 0) {
-    state.habits = [...BASE_HABITS];
-  }
-  render();
+// ---------- GLOBAL STATE ----------
+let user = null;
+let state = {
+  xp: 0,
+  level: 1,
+  habits: [
+    { name: "Shower 🚿", done: false },
+    { name: "Brush Teeth 🦷", done: false },
+    { name: "Deodorant 🧴", done: false }
+  ],
+  history: {},
+  badges: []
+};
+
+let currentMonth = new Date();
+
+// ---------- AUTH ----------
+function login() {
+  auth.signInWithEmailAndPassword(email.value, password.value)
+    .catch(() =>
+      auth.createUserWithEmailAndPassword(email.value, password.value)
+    );
 }
-init();
 
-// ---------- RENDER ----------
-function render() {
-  renderHabits();
-  renderXP();
-  renderCalendar();
-  renderPlan();
-  save();
+auth.onAuthStateChanged(u => {
+  if (!u) return;
+  user = u;
+  showTab("today");
+  loadState();
+  listenToFeed();
+});
+
+// ---------- UI ----------
+function showTab(id) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
+// ---------- LOAD / SAVE ----------
+async function loadState() {
+  const doc = await db.collection("users").doc(user.uid).get();
+  if (doc.exists) state = doc.data();
+  renderAll();
+}
+
+function saveState() {
+  db.collection("users").doc(user.uid).set(state);
+}
+
+// ---------- HABITS ----------
 function renderHabits() {
   habitList.innerHTML = "";
   state.habits.forEach((h, i) => {
     const div = document.createElement("div");
-    div.className = "habit";
+    div.className = "habit " + (h.done ? "done" : "");
     div.innerHTML = `
       <span>${h.name}</span>
-      <button onclick="completeHabit(${i})">+${h.xp} XP</button>
+      <button onclick="toggleHabit(${i})">✔</button>
     `;
     habitList.appendChild(div);
   });
 }
 
+function toggleHabit(i) {
+  state.habits[i].done = !state.habits[i].done;
+  renderHabits();
+}
+
+// ---------- COMPLETE DAY ----------
+function completeDay() {
+  const completed = state.habits.filter(h => h.done).length;
+  const pct = completed / state.habits.length;
+
+  const key = new Date().toISOString().slice(0,10);
+  state.history[key] = pct;
+
+  if (completed > 0) {
+    state.xp += Math.floor(50 * pct);
+  }
+
+  if (pct === 1) checkBadges();
+
+  resetHabits();
+  saveState();
+  renderAll();
+}
+
+function resetHabits() {
+  state.habits.forEach(h => h.done = false);
+}
+
+// ---------- XP / LEVEL ----------
 function renderXP() {
-  const levelXP = state.level * 100;
-  const pct = Math.min(100, (state.xp / levelXP) * 100);
-  xpFill.style.width = pct + "%";
-  xpText.innerText = `XP: ${state.xp} / ${levelXP}`;
+  const needed = state.level * 200;
+  xpFill.style.width = `${Math.min(100, state.xp / needed * 100)}%`;
+  xpText.innerText = `XP ${state.xp} / ${needed}`;
+  if (state.xp >= needed) state.level++;
   levelText.innerText = `Level ${state.level}`;
 }
 
+// ---------- CALENDAR ----------
 function renderCalendar() {
-  calendar.innerHTML = "";
-  const today = new Date();
-  const todayKey = today.toISOString().slice(0,10);
+  calendarGrid.innerHTML = "";
+  monthLabel.innerText = currentMonth.toLocaleString("default", { month: "long", year: "numeric" });
 
-  for (let i = 1; i <= 30; i++) {
-    const key = todayKey.slice(0,8) + String(i).padStart(2,"0");
+  for (let i = 1; i <= 31; i++) {
+    const date = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth()+1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
     const div = document.createElement("div");
     div.className = "day";
 
-    if (state.days[key]) div.classList.add("good");
-    if (i === today.getDate()) div.classList.add("today");
+    if (state.history[date] === 1) div.classList.add("good");
+    else if (state.history[date] > 0) div.classList.add("partial");
+    else if (state.history[date] === 0) div.classList.add("bad");
 
-    div.innerText = i + (state.days[key] ? "🔥" : "");
-    calendar.appendChild(div);
+    div.innerText = i + (state.history[date] === 1 ? "🔥" : "");
+    calendarGrid.appendChild(div);
   }
 }
 
-function renderPlan() {
-  planList.innerHTML = "";
-  [...state.habits, ...state.customGoals].forEach(h => {
-    const li = document.createElement("div");
-    li.innerText = h.name || h;
-    planList.appendChild(li);
+function changeMonth(delta) {
+  currentMonth.setMonth(currentMonth.getMonth() + delta);
+  renderCalendar();
+}
+
+// ---------- BADGES ----------
+function checkBadges() {
+  if (!state.badges.includes("7-day")) state.badges.push("7-day");
+}
+
+function renderBadges() {
+  badges.innerHTML = state.badges.map(b => `<div>🏅 ${b}</div>`).join("");
+}
+
+// ---------- COMMUNITY ----------
+function post() {
+  db.collection("posts").add({
+    text: postInput.value,
+    user: user.email,
+    time: Date.now()
+  });
+  postInput.value = "";
+}
+
+function listenToFeed() {
+  db.collection("posts").orderBy("time", "desc").onSnapshot(snap => {
+    feed.innerHTML = "";
+    snap.forEach(doc => {
+      const p = doc.data();
+      feed.innerHTML += `<p><strong>${p.user}</strong>: ${p.text}</p>`;
+    });
   });
 }
 
-// ---------- ACTIONS ----------
-function completeHabit(i) {
-  state.xp += state.habits[i].xp;
-  checkLevelUp();
-  render();
+// ---------- PROFILE ----------
+function saveProfile() {
+  state.profile = {
+    activity: q_activity.value,
+    sweat: q_sweat.value,
+    motivation: q_motivation.value
+  };
+  saveState();
 }
 
-function completeDay() {
-  const key = new Date().toISOString().slice(0,10);
-  state.days[key] = true;
-  render();
-}
-
-function addCustomGoal() {
-  if (customGoal.value.trim()) {
-    state.customGoals.push(customGoal.value);
-    customGoal.value = "";
-    render();
-  }
-}
-
-function checkLevelUp() {
-  if (state.xp >= state.level * 100) {
-    state.level++;
-  }
-}
-
-function save() {
-  localStorage.setItem("state", JSON.stringify(state));
-}
-
-// ---------- QUEST ----------
-const quests = [
-  "Complete 3 habits",
-  "Shower before noon",
-  "Reflect today"
-];
-dailyQuest.innerText = quests[Math.floor(Math.random()*quests.length)];
-
-function completeQuest() {
-  state.xp += 30;
-  checkLevelUp();
-  render();
+// ---------- RENDER ----------
+function renderAll() {
+  renderHabits();
+  renderXP();
+  renderCalendar();
+  renderBadges();
 }
