@@ -2,15 +2,6 @@
 
   // 🔥 PASTE YOUR CONFIG HERE
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCZhgTtPGZhxU3DtvOeXP8xSO9QhyGvFtg",
-  authDomain: "cleancoder-aa2f4.firebaseapp.com",
-  projectId: "cleancoder-aa2f4",
-  storageBucket: "cleancoder-aa2f4.firebasestorage.app",
-  messagingSenderId: "842404335141",
-  appId: "1:842404335141:web:dc61a36af6b62c87dcf9cc",
-  measurementId: "G-WQ9WC59Y9J"
-};
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
