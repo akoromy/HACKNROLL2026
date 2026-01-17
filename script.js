@@ -1,104 +1,125 @@
-// ---------- TABS ----------
-function switchTab(id) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+// ---------- STATE ----------
+let state = JSON.parse(localStorage.getItem("state")) || {
+  xp: 0,
+  level: 1,
+  habits: [],
+  days: {},
+  customGoals: []
+};
+
+const BASE_HABITS = [
+  { name: "Shower 🚿", xp: 20 },
+  { name: "Brush Teeth 🦷", xp: 15 },
+  { name: "Deodorant 🧴", xp: 10 }
+];
+
+// ---------- INIT ----------
+function init() {
+  if (state.habits.length === 0) {
+    state.habits = [...BASE_HABITS];
+  }
+  render();
 }
+init();
 
-// ---------- THEME ----------
-function setTheme(t) {
-  document.body.dataset.theme = t;
-}
-
-// ---------- PERSONALIZATION ----------
-function generatePlan() {
-  const activity = q_activity.value;
-  const sweat = q_sweat.value;
-
-  const habits = [];
-  if (activity === "high" || sweat === "yes") habits.push("Daily shower 🚿");
-  else habits.push("Shower every other day");
-
-  habits.push("Brush teeth twice 🦷");
-  habits.push("Use deodorant 🧴");
-
-  localStorage.setItem("habits", JSON.stringify(habits));
+// ---------- RENDER ----------
+function render() {
   renderHabits();
+  renderXP();
+  renderCalendar();
+  renderPlan();
+  save();
 }
 
-// ---------- HABITS ----------
 function renderHabits() {
-  const list = document.getElementById("habitList");
-  list.innerHTML = "";
-  const habits = JSON.parse(localStorage.getItem("habits")) || [];
-  habits.forEach(h => {
-    list.innerHTML += `<label><input type="checkbox"> ${h}</label>`;
+  habitList.innerHTML = "";
+  state.habits.forEach((h, i) => {
+    const div = document.createElement("div");
+    div.className = "habit";
+    div.innerHTML = `
+      <span>${h.name}</span>
+      <button onclick="completeHabit(${i})">+${h.xp} XP</button>
+    `;
+    habitList.appendChild(div);
   });
 }
 
-// ---------- DAILY FEED ----------
-const feedMessages = [
-  "Progress is quiet but powerful.",
-  "You don’t need motivation, just momentum.",
-  "Clean habits, clear mind."
-];
-dailyFeed.innerText = feedMessages[Math.floor(Math.random()*feedMessages.length)];
-
-// ---------- STREAK & CALENDAR ----------
-const data = JSON.parse(localStorage.getItem("days")) || {};
-function saveDay() {
-  const today = new Date().toISOString().slice(0,10);
-  data[today] = true;
-  localStorage.setItem("days", JSON.stringify(data));
-  renderCalendar();
+function renderXP() {
+  const levelXP = state.level * 100;
+  const pct = Math.min(100, (state.xp / levelXP) * 100);
+  xpFill.style.width = pct + "%";
+  xpText.innerText = `XP: ${state.xp} / ${levelXP}`;
+  levelText.innerText = `Level ${state.level}`;
 }
 
 function renderCalendar() {
   calendar.innerHTML = "";
-  const todayNum = new Date().getDate();
+  const today = new Date();
+  const todayKey = today.toISOString().slice(0,10);
 
-  for (let i=1;i<=30;i++) {
-    const d = document.createElement("div");
-    d.className = "day";
-    if (i === todayNum) d.classList.add("today");
-    if (Object.keys(data).some(k => k.endsWith(`-${String(i).padStart(2,"0")}`)))
-      d.classList.add("good");
-    d.innerText = i;
-    calendar.appendChild(d);
+  for (let i = 1; i <= 30; i++) {
+    const key = todayKey.slice(0,8) + String(i).padStart(2,"0");
+    const div = document.createElement("div");
+    div.className = "day";
+
+    if (state.days[key]) div.classList.add("good");
+    if (i === today.getDate()) div.classList.add("today");
+
+    div.innerText = i + (state.days[key] ? "🔥" : "");
+    calendar.appendChild(div);
   }
-
-  streak.innerText = Object.keys(data).length;
 }
 
-// ---------- COMMUNITY ----------
-const posts = JSON.parse(localStorage.getItem("posts")) || [];
-function addPost() {
-  posts.unshift(postInput.value);
-  localStorage.setItem("posts", JSON.stringify(posts));
-  renderPosts();
+function renderPlan() {
+  planList.innerHTML = "";
+  [...state.habits, ...state.customGoals].forEach(h => {
+    const li = document.createElement("div");
+    li.innerText = h.name || h;
+    planList.appendChild(li);
+  });
 }
-function renderPosts() {
-  feed.innerHTML = posts.map(p => `<p>🫶 ${p}</p>`).join("");
-}
-renderPosts();
 
-// ---------- GAME ----------
-const challenges = [
+// ---------- ACTIONS ----------
+function completeHabit(i) {
+  state.xp += state.habits[i].xp;
+  checkLevelUp();
+  render();
+}
+
+function completeDay() {
+  const key = new Date().toISOString().slice(0,10);
+  state.days[key] = true;
+  render();
+}
+
+function addCustomGoal() {
+  if (customGoal.value.trim()) {
+    state.customGoals.push(customGoal.value);
+    customGoal.value = "";
+    render();
+  }
+}
+
+function checkLevelUp() {
+  if (state.xp >= state.level * 100) {
+    state.level++;
+  }
+}
+
+function save() {
+  localStorage.setItem("state", JSON.stringify(state));
+}
+
+// ---------- QUEST ----------
+const quests = [
+  "Complete 3 habits",
   "Shower before noon",
-  "Brush teeth twice today",
-  "Change clothes once"
+  "Reflect today"
 ];
-challenge.innerText = challenges[Math.floor(Math.random()*challenges.length)];
+dailyQuest.innerText = quests[Math.floor(Math.random()*quests.length)];
 
-let xp = Number(localStorage.getItem("xp")) || 0;
-xpSpan = document.getElementById("xp");
-xpSpan.innerText = xp;
-
-function completeChallenge() {
-  xp += 10;
-  localStorage.setItem("xp", xp);
-  xpSpan.innerText = xp;
+function completeQuest() {
+  state.xp += 30;
+  checkLevelUp();
+  render();
 }
-
-// INIT
-renderHabits();
-renderCalendar();
