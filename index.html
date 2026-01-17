@@ -1,62 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CleanCode 🧼</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personal Hygiene Planner</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-
-<header>
-  <h1>CleanCode 🧼</h1>
-  <p id="levelText"></p>
-</header>
-
-<main>
-
-<!-- TODAY PANEL -->
-<section class="panel">
-  <h2>Today</h2>
-
-<p id="propsText">Make-up props: <span id="propCount">0</span> 🎁</p>
-<button onclick="useProp()">Use Prop</button>
-
-  <div class="xp-bar">
-    <div id="xpFill"></div>
+<body class="light">
+<!-- XP BAR -->
+<div class="xp-container">
+  <div class="xp-text">
+    Level <span id="level">1</span> · XP <span id="xp">0</span>/50
   </div>
-  <p id="xpText"></p>
+  <div class="xp-bar">
+    <div id="xp-fill"></div>
+  </div>
+</div>
 
-  <div id="habitList"></div>
+  <!-- THEME BUTTON -->
+  <div class="theme-container">
+    <button id="themeBtn">🌓 Change Theme</button>
+  </div>
 
-  <textarea id="reflection" placeholder="Quick reflection (optional)"></textarea>
+  <div class="grid-container">
 
-  <button class="primary" onclick="completeDay()">Complete Day</button>
-</section>
+    <!-- DAILY CHECKLIST -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Daily Checklist</h2>
+        <button id="openModalBtn">🛠 Generate Plan</button>
+      </div>
+      <ul id="checklist">
+        <li><input type="checkbox" data-task="Brush teeth"> Brush teeth</li>
+        <li><input type="checkbox" data-task="Shower"> Shower</li>
+        <li><input type="checkbox" data-task="Wash hands"> Wash hands</li>
+        <li><input type="checkbox" data-task="Skincare"> Skincare</li>
+      </ul>
+    </div>
 
-<!-- PLAN -->
-<section class="panel">
-  <h2>Your Hygiene Plan</h2>
-  <div id="planList"></div>
+    <!-- STREAK CALENDAR -->
+    <div class="card">
+      <h2>Streak Calendar</h2>
+      <div class="weekday-row">
+        <span>Sun</span><span>Mon</span><span>Tue</span>
+        <span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+      <div id="calendar"></div>
+      <div id="dayDetails" class="day-details">
+        Click a date to see details
+      </div>
+    </div>
 
-  <input id="customGoal" placeholder="Add custom goal">
-  <button onclick="addCustomGoal()">Add Goal</button>
-</section>
+    <!-- BADGES -->
+    <div class="card">
+      <h2>Achievement Badges 🏅</h2>
+      <div id="badges"></div>
+    </div>
 
-<!-- CALENDAR -->
-<section class="panel">
-  <h2>🔥 Streak Calendar</h2>
-  <div id="calendar"></div>
-</section>
+    <!-- INSPIRATION -->
+    <div class="card">
+      <h2>Daily Inspiration 🍲</h2>
+      <p id="chickenSoup"></p>
+      <button id="newQuoteBtn">🔄 New Quote</button>
+    </div>
+  </div>
 
-<!-- GAME -->
-<section class="panel">
-  <h2>Daily Quest 🎯</h2>
-  <p id="dailyQuest"></p>
-  <button onclick="completeQuest()">Claim Quest XP</button>
-</section>
+  <!-- 🔥 MODAL -->
+  <div id="planModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Personalize Your Hygiene Plan</h3>
 
-</main>
+      <label>Are you active during the day?</label>
+      <select id="qActive">
+        <option value="no">Not really</option>
+        <option value="yes">Yes</option>
+      </select>
 
-<script src="script.js"></script>
+      <label>Do you exercise?</label>
+      <select id="qExercise">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+
+      <label>Do you sweat a lot?</label>
+      <select id="qSweat">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+
+      <label>Do you go outdoors often?</label>
+      <select id="qOutdoor">
+        <option value="no">Rarely</option>
+        <option value="yes">Often</option>
+      </select>
+
+      <label>Do you wear makeup?</label>
+      <select id="qMakeup">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+
+      <div class="modal-buttons">
+        <button id="generatePlanConfirm">✅ Generate</button>
+        <button id="closeModalBtn">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
