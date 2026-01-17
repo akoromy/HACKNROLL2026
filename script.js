@@ -1,148 +1,69 @@
-const gentleReminders = [
-  "A quick shower can reset your whole day 🙂",
-  "Clean habits help your mind too.",
-  "Small care, big difference."
+/************** TODAY'S CHECKLIST **************/
+const tasks = [
+  "Brush teeth",
+  "Wash face",
+  "Shower",
+  "Drink water",
+  "Skincare routine"
 ];
 
-const savageReminders = [
-  "Your code compiles. You don't.",
-  "This is not a bug. It's your smell.",
-  "Even garbage collection exists for a reason.",
-  "You’ve been idle longer than your deodorant."
-];
+const todayKey = new Date().toDateString();
+const saved = JSON.parse(localStorage.getItem(todayKey)) || {};
 
-// LOAD DATA
-let streak = Number(localStorage.getItem("streak")) || 0;
-let lastDate = localStorage.getItem("lastDate") || "";
-let achievements = JSON.parse(localStorage.getItem("achievements")) || [];
+const checklist = document.getElementById("checklist");
 
-document.getElementById("streak").innerText = streak;
-renderAchievements();
+tasks.forEach(task => {
+  const li = document.createElement("li");
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = saved[task] || false;
 
-// GENERATE PLAN
-function generatePlan() {
-  const activity = activityValue();
-  const sweat = sweatValue();
-  const busy = busyValue();
-  const savage = savageMode();
-
-  let showerPlan;
-  if (activity === "high" || sweat === "yes") {
-    showerPlan = "Shower every day 🚿";
-  } else if (activity === "medium") {
-    showerPlan = "Shower every other day";
-  } else {
-    showerPlan = "Shower at least 3x a week";
-  }
-
-  const reminder = getReminder(busy, savage);
-
-  document.getElementById("plan").innerHTML = `
-    <h2>Your Hygiene Plan</h2>
-    <ul>
-      <li>${showerPlan}</li>
-      <li>Brush teeth twice a day 🦷</li>
-      <li>Use deodorant daily 🧴</li>
-      <li>Change clothes regularly 👕</li>
-    </ul>
-    <p><strong>Reminder:</strong> ${reminder}</p>
-  `;
-}
-
-// SAVE DAILY TRACKER
-function saveToday() {
-  const allDone =
-    checked("shower") &&
-    checked("teeth") &&
-    checked("deo") &&
-    checked("clothes");
-
-  const today = new Date().toDateString();
-
-  if (today !== lastDate) {
-    if (allDone) {
-      streak++;
-      checkAchievements();
-    } else {
-      streak = 0;
-      alert(getPunishment());
-    }
-    lastDate = today;
-  }
-
-  localStorage.setItem("streak", streak);
-  localStorage.setItem("lastDate", lastDate);
-  document.getElementById("streak").innerText = streak;
-}
-
-// ACHIEVEMENTS
-function checkAchievements() {
-  if (streak === 3) addAchievement("3-day streak 🥉");
-  if (streak === 7) addAchievement("7-day streak 🥈");
-  if (streak === 25) addAchievement("25-day hygiene hero 🥇");
-}
-
-function addAchievement(text) {
-  if (!achievements.includes(text)) {
-    achievements.push(text);
-    localStorage.setItem("achievements", JSON.stringify(achievements));
-    renderAchievements();
-  }
-}
-
-function renderAchievements() {
-  const list = document.getElementById("achievements");
-  list.innerHTML = "";
-  achievements.forEach(a => {
-    const li = document.createElement("li");
-    li.innerText = a;
-    list.appendChild(li);
+  checkbox.addEventListener("change", () => {
+    saved[task] = checkbox.checked;
+    localStorage.setItem(todayKey, JSON.stringify(saved));
   });
+
+  li.appendChild(checkbox);
+  li.append(" " + task);
+  checklist.appendChild(li);
+});
+
+/************** STREAK CALENDAR (MONTH) **************/
+const calendar = document.getElementById("calendar");
+const daysInMonth = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth() + 1,
+  0
+).getDate();
+
+for (let i = 1; i <= daysInMonth; i++) {
+  const day = document.createElement("span");
+  day.textContent = i;
+  day.style.margin = "4px";
+  day.style.display = "inline-block";
+  day.style.width = "24px";
+  day.style.borderRadius = "50%";
+  day.style.background = "#ffd6e8";
+  calendar.appendChild(day);
 }
 
-// HELPERS
-function checked(id) {
-  return document.getElementById(id).checked;
-}
+/************** YEAR VIEW **************/
+document.getElementById("calendarCard").onclick = () => {
+  alert("📅 Yearly streak view (future expansion)");
+};
 
-function activityValue() {
-  return document.getElementById("activity").value;
-}
-function sweatValue() {
-  return document.getElementById("sweat").value;
-}
-function busyValue() {
-  return document.getElementById("busy").value;
-}
-function savageMode() {
-  return document.getElementById("savage").checked;
-}
+/************** CHICKEN SOUP **************/
+const quotes = [
+  "You’re doing better than you think 🌱",
+  "Small steps still move you forward 🐾",
+  "Consistency beats perfection 💖",
+  "Taking care of yourself matters 🌸"
+];
 
-// REMINDERS (EDIT THIS!!)
-function getReminder(busy, savage) {
-  const normalReminders = [
-    "Clean habits = clean commits.",
-    "Future you will thank you.",
-    "A 5-minute shower is still a shower."
-  ];
+document.getElementById("quote").textContent =
+  quotes[Math.floor(Math.random() * quotes.length)];
 
-  const savageReminders = [
-    "Your keyboard deserves better than this.",
-    "Your code compiles. You don’t.",
-    "This is why people open windows near you."
-  ];
-
-  const list = savage ? savageReminders : normalReminders;
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-// PUNISHMENTS (EDIT THIS!!)
-function getPunishment() {
-  const punishments = [
-    "🚨 HYGIENE ALERT: STREAK DESTROYED 🚨",
-    "The deodorant gods are disappointed.",
-    "Your hoodie can walk away on its own."
-  ];
-  return punishments[Math.floor(Math.random() * punishments.length)];
-}
-
+/************** BADGES **************/
+document.getElementById("badgeCard").onclick = () => {
+  alert("🏅 All badges:\n• Beginner\n• 7-Day Streak\n• Hygiene Hero");
+};
