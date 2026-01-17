@@ -1,73 +1,69 @@
 :root {
-  --bg: #f4f6f8;
-  --card: #ffffff;
+  --bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  --card: #1e2a38;
+  --text: #f5f7fa;
+  --accent: #ffb703;
+}
+
+body[data-theme="light"] {
+  --bg: linear-gradient(135deg, #fdfbfb, #ebedee);
+  --card: white;
   --text: #222;
   --accent: #4f7cff;
 }
 
-body[data-theme="dark"] {
-  --bg: #121212;
-  --card: #1e1e1e;
-  --text: #eee;
-  --accent: #8ab4f8;
-}
-
 body[data-theme="pastel"] {
-  --bg: #fdf1f6;
+  --bg: linear-gradient(135deg, #fdf1f6, #e0f7fa);
   --card: #ffffff;
   --text: #333;
   --accent: #ff8fab;
 }
 
 body {
-  background: var(--bg);
-  font-family: system-ui, sans-serif;
   margin: 0;
+  font-family: system-ui;
+  background: var(--bg);
   color: var(--text);
 }
 
 header {
-  padding: 20px;
+  padding: 12px;
   text-align: center;
+}
+
+nav button, select {
+  margin: 4px;
+  padding: 6px 10px;
 }
 
 main {
   max-width: 700px;
   margin: auto;
-  padding: 20px;
+}
+
+.tab {
+  display: none;
+}
+.tab.active {
+  display: block;
 }
 
 .card {
   background: var(--card);
+  padding: 15px;
   border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  margin: 15px 0;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
-h2 {
-  margin-top: 0;
+.bubble::after {
+  content: "🫧🧼🫧";
+  float: right;
 }
 
-.habits label {
-  display: block;
-  margin: 8px 0;
-}
-
-textarea {
-  width: 100%;
-  margin-top: 10px;
-  border-radius: 8px;
-  padding: 8px;
-}
-
-button, select {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent);
-  color: white;
-  cursor: pointer;
+.flower::after {
+  content: "🌸🌼";
+  float: right;
 }
 
 #calendar {
@@ -78,25 +74,14 @@ button, select {
 
 .day {
   padding: 10px;
-  text-align: center;
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-.day.good { background: #9be7c4; }
-.day.bad { background: #f5a3a3; }
-
-.hidden {
-  display: none;
-}
-
-.badge {
-  padding: 10px;
-  margin: 6px 0;
   border-radius: 8px;
-  background: #eee;
+  text-align: center;
 }
 
-.badge.unlocked {
-  background: #ffeaa7;
+.today {
+  outline: 3px solid var(--accent);
+}
+
+.good::after {
+  content: "🔥";
 }
