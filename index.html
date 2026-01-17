@@ -4,90 +4,52 @@
   <meta charset="UTF-8">
   <title>CleanCode 🧼</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-
 <body>
 
 <header>
   <h1>CleanCode 🧼</h1>
   <p id="levelText"></p>
-
-  <nav>
-    <button onclick="showTab('today')">Today</button>
-    <button onclick="showTab('calendar')">Calendar</button>
-    <button onclick="showTab('community')">Community</button>
-    <button onclick="showTab('profile')">Profile</button>
-  </nav>
 </header>
 
 <main>
 
-<!-- LOGIN -->
-<section id="login" class="tab active">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button onclick="login()">Login / Sign Up</button>
-</section>
-
-<!-- TODAY -->
-<section id="today" class="tab">
+<!-- TODAY PANEL -->
+<section class="panel">
   <h2>Today</h2>
 
-  <div class="xp-bar"><div id="xpFill"></div></div>
+  <div class="xp-bar">
+    <div id="xpFill"></div>
+  </div>
   <p id="xpText"></p>
 
   <div id="habitList"></div>
 
-  <textarea id="reflection" placeholder="Reflection (optional)"></textarea>
+  <textarea id="reflection" placeholder="Quick reflection (optional)"></textarea>
+
   <button class="primary" onclick="completeDay()">Complete Day</button>
 </section>
 
+<!-- PLAN -->
+<section class="panel">
+  <h2>Your Hygiene Plan</h2>
+  <div id="planList"></div>
+
+  <input id="customGoal" placeholder="Add custom goal">
+  <button onclick="addCustomGoal()">Add Goal</button>
+</section>
+
 <!-- CALENDAR -->
-<section id="calendar" class="tab">
+<section class="panel">
   <h2>🔥 Streak Calendar</h2>
-  <button onclick="changeMonth(-1)">◀</button>
-  <span id="monthLabel"></span>
-  <button onclick="changeMonth(1)">▶</button>
-  <div id="calendarGrid"></div>
+  <div id="calendar"></div>
 </section>
 
-<!-- COMMUNITY -->
-<section id="community" class="tab">
-  <h2>Community Feed</h2>
-  <input id="postInput" placeholder="Share a win, tip, or struggle">
-  <button onclick="post()">Post</button>
-  <div id="feed"></div>
-</section>
-
-<!-- PROFILE -->
-<section id="profile" class="tab">
-  <h2>Your Profile</h2>
-
-  <h3>Questionnaire</h3>
-  <label>Activity Level</label>
-  <select id="q_activity">
-    <option>Low</option><option>Medium</option><option>High</option>
-  </select>
-
-  <label>Sweat Level</label>
-  <select id="q_sweat">
-    <option>Low</option><option>High</option>
-  </select>
-
-  <label>Motivation Style</label>
-  <select id="q_motivation">
-    <option>Gentle</option><option>Competitive</option><option>Savage</option>
-  </select>
-
-  <button onclick="saveProfile()">Save Profile</button>
-
-  <h3>Badges 🏅</h3>
-  <div id="badges"></div>
+<!-- GAME -->
+<section class="panel">
+  <h2>Daily Quest 🎯</h2>
+  <p id="dailyQuest"></p>
+  <button onclick="completeQuest()">Claim Quest XP</button>
 </section>
 
 </main>
