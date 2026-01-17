@@ -71,31 +71,52 @@ const dayDetails = document.getElementById("dayDetails");
 function renderCalendar() {
   calendar.innerHTML = "";
 
-  const today = getToday();
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-indexed
 
-  for (let i = 0; i < 7; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    const dayStr = date.toISOString().split("T")[0];
+  // Weekday headers already in HTML
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "calendar-day";
-    dayDiv.innerText = dayStr.slice(5);
+  // Empty slots for first day alignment
+  for (let i = 0; i < firstDay; i++) {
+    const emptyDiv = document.createElement("div");
+    calendar.appendChild(emptyDiv);
+  }
 
-    if (dayTasks[dayStr]) {
-      const tasks = Object.values(dayTasks[dayStr]);
+  // Create day cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2,"0")}`;
+    const div = document.createElement("div");
+    div.className = "calendar-day";
+    div.textContent = d;
 
+    // Past or today
+    if (dayTasks[dateStr]) {
+      const tasks = dayTasks[dateStr].map(t => t.done);
       const allDone = tasks.length > 0 && tasks.every(v => v === true);
-      const someUndone = tasks.some(v => v === false);
+      const someUndone = tasks.length > 0 && tasks.some(v => v === false);
 
       if (allDone) {
-        dayDiv.classList.add("completed");
+        div.classList.add("completed"); // green
       } else if (someUndone) {
-        dayDiv.classList.add("incomplete"); // 👈 NEW
+        div.classList.add("incomplete"); // red
       }
     }
 
-    calendar.appendChild(dayDiv);
+    div.onclick = () => {
+      const tasks = dayTasks[dateStr];
+      if (!tasks) {
+        dayDetails.textContent = "No data for this day.";
+      } else {
+        dayDetails.innerHTML = tasks
+          .map(t => `${t.done ? "✅" : "❌"} ${t.name}`)
+          .join("<br>");
+      }
+    };
+
+    calendar.appendChild(div);
   }
 }
 
