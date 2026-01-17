@@ -2,42 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Daily Hygiene Dashboard</title>
+  <title>CleanCode 🧼</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body data-theme="light">
 
-<h1>🌸 My Hygiene Dashboard</h1>
+<header>
+  <h1>CleanCode 🧼</h1>
+  <p>Small habits. Real momentum.</p>
 
-<div class="dashboard">
+  <select id="themeSwitcher" onchange="setTheme(this.value)">
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+    <option value="pastel">Pastel</option>
+  </select>
+</header>
 
-  <!-- Today's Plan -->
-  <div class="card">
-    <h2>🧼 Today’s Hygiene Plan</h2>
-    <ul id="checklist"></ul>
-  </div>
+<main>
 
-  <!-- Streak Calendar -->
-  <div class="card clickable" id="calendarCard">
-    <h2>🔥 Streak Calendar</h2>
+  <!-- DAILY FEED -->
+  <section class="card">
+    <h2>Daily Motivation</h2>
+    <p id="dailyFeed"></p>
+  </section>
+
+  <!-- HABIT TRACKER -->
+  <section class="card">
+    <h2>Today’s Habits</h2>
+
+    <div class="habits">
+      <label><input type="checkbox" data-habit="shower"> Shower</label>
+      <label><input type="checkbox" data-habit="teeth"> Brush Teeth</label>
+      <label><input type="checkbox" data-habit="deo"> Deodorant</label>
+      <label><input type="checkbox" data-habit="clothes"> Clean Clothes</label>
+    </div>
+
+    <textarea id="reflection" placeholder="Optional: what helped or got in the way today?"></textarea>
+
+    <button onclick="saveDay()">Save Day</button>
+
+    <div class="progress">
+      <div id="progressRing"></div>
+      <p id="completionText"></p>
+    </div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section class="card">
+    <h2>Monthly Calendar</h2>
     <div id="calendar"></div>
-    <p class="hint">Click to see yearly view</p>
-  </div>
+  </section>
 
-  <!-- Chicken Soup -->
-  <div class="card">
-    <h2>🐥 Daily Encouragement</h2>
-    <p id="quote"></p>
-  </div>
+  <!-- STREAK & BADGES -->
+  <section class="card">
+    <h2>Achievements</h2>
+    <button onclick="toggleBadges()">View All Badges</button>
+    <p>🔥 Current streak: <span id="streak">0</span></p>
 
-  <!-- Badges -->
-  <div class="card clickable" id="badgeCard">
-    <h2>🏅 Achievement Badges</h2>
-    <div id="badges">✨ Beginner</div>
-    <p class="hint">Click to view all badges</p>
-  </div>
+    <div id="badgeBoard" class="hidden"></div>
+  </section>
 
-</div>
+</main>
 
 <script src="script.js"></script>
 </body>
