@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CleanCode 🧼</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>CleanCode 🧼</h1>
+  <p>Refactor your hygiene habits.</p>
+
+  <label>How active are you?</label>
+  <select id="activity">
+    <option value="low">Low</option>
+    <option value="medium">Medium</option>
+    <option value="high">High</option>
+  </select>
+
+  <label>Do you sweat easily?</label>
+  <select id="sweat">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+
+  <label>How busy are you?</label>
+  <select id="busy">
+    <option value="chill">Not busy</option>
+    <option value="normal">Normal</option>
+    <option value="chaos">Very busy</option>
+  </select>
+
+  <button onclick="generatePlan()">Generate My Hygiene Plan</button>
+
+  <div id="output"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
