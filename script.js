@@ -232,4 +232,35 @@ if (!dayTasks[getToday()]) {
   modal.classList.remove("hidden");
 }
 
+/* ---------- RESET BUTTON ---------- */
+document.getElementById("resetBtn").onclick = () => {
+  const confirmReset = confirm(
+    "This will remove ALL checklist records, calendar history, XP, and badges.\nAre you sure?"
+  );
+
+  if (!confirmReset) return;
+
+  // Clear storage
+  localStorage.removeItem("dayTasks");
+  localStorage.removeItem("completedDays");
+  localStorage.removeItem("rewardedDays");
+  localStorage.removeItem("earnedBadges");
+  localStorage.removeItem("xp");
+
+  // Reset in-memory state
+  dayTasks = {};
+  completedDays = [];
+  rewardedDays = [];
+  earnedBadges = [];
+  xp = 0;
+
+  // Reset UI
+  checklist.innerHTML = "";
+  ensureCoreTasks();
+  updateXPUI();
+  renderCalendar();
+  renderBadges();
+
+  alert("All records have been reset 🌱");
+};
 
