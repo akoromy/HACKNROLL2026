@@ -1,12 +1,3 @@
-// Load or initialize earned badges
-let earnedBadges = JSON.parse(localStorage.getItem("earnedBadges") || "[]");
-
-// Award beginner badge if not already earned
-if (!earnedBadges.includes(0)) {
-  earnedBadges.push(0);
-  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
-}
-
 /* ---------- DATE ---------- */
 function getToday() {
   const d = new Date();
@@ -181,10 +172,33 @@ function loadTodayTasks() {
 
 /* ---------- BADGES ---------- */
 const badgeList = [
+  { id: 0, name: "Beginner 🐣" },  // added beginner badge
   { id: 1, name: "First Day!" },
   { id: 7, name: "7-Day Streak!" },
   { id: 14, name: "14-Day Legend!" }
 ];
+
+// Initialize earned badges once
+let earnedBadges = JSON.parse(localStorage.getItem("earnedBadges") || "[]");
+
+// Award beginner badge if not already earned
+if (!earnedBadges.includes(0)) {
+  earnedBadges.push(0);
+  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
+}
+
+function checkBadges() {
+  const days = completedDays.length;
+
+  badgeList.forEach(b => {
+    if (b.id !== 0 && days >= b.id && !earnedBadges.includes(b.id)) {
+      earnedBadges.push(b.id);
+    }
+  });
+
+  // Save all earned badges
+  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
+}
 
 function renderBadges() {
   const box = document.getElementById("badges");
@@ -199,23 +213,6 @@ function renderBadges() {
     }
   });
 }
-function checkBadges() {
-  // Award beginner badge automatically
-  if (!earnedBadges.includes(0)) {
-    earnedBadges.push(0);
-  }
-
-  const days = completedDays.length;
-  badgeList.forEach(b => {
-    if (b.id !== 0 && days >= b.id && !earnedBadges.includes(b.id)) {
-      earnedBadges.push(b.id);
-    }
-  });
-
-  // Save all earned badges
-  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
-}
-
 
 
 /* ---------- QUOTES ---------- */
