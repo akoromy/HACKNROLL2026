@@ -1,16 +1,32 @@
+/* ---------- STORAGE ---------- */
+let dayTasks = JSON.parse(localStorage.getItem("dayTasks") || "{}");
+let completedDays = JSON.parse(localStorage.getItem("completedDays") || "[]");
+let rewardedDays = JSON.parse(localStorage.getItem("rewardedDays") || "[]");
+let xp = parseInt(localStorage.getItem("xp") || "0");
+let persistentTasks = JSON.parse(localStorage.getItem("persistentTasks") || "[]");
+
+// Load or initialize earned badges (only once!)
+let earnedBadges = JSON.parse(localStorage.getItem("earnedBadges") || "[]");
+
+// ---------- BADGES ----------
+const badgeList = [
+  { id: 0, name: "Beginner 🐣" },      // beginner badge
+  { id: 1, name: "First Day!" },
+  { id: 7, name: "7-Day Streak!" },
+  { id: 14, name: "14-Day Legend!" }
+];
+
+// Award beginner badge if not already earned
+if (!earnedBadges.includes(0)) {
+  earnedBadges.push(0);
+  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
+}
+
 /* ---------- DATE ---------- */
 function getToday() {
   const d = new Date();
   return d.toISOString().split("T")[0];
 }
-
-/* ---------- STORAGE ---------- */
-let dayTasks = JSON.parse(localStorage.getItem("dayTasks") || "{}");
-let completedDays = JSON.parse(localStorage.getItem("completedDays") || "[]");
-let rewardedDays = JSON.parse(localStorage.getItem("rewardedDays") || "[]");
-let earnedBadges = JSON.parse(localStorage.getItem("earnedBadges") || "[]");
-let xp = parseInt(localStorage.getItem("xp") || "0");
-let persistentTasks = JSON.parse(localStorage.getItem("persistentTasks") || "[]");
 
 /* ---------- DOM ---------- */
 const checklist = document.getElementById("checklist");
@@ -65,7 +81,6 @@ function addTask(task, removable = false, persistent = true) {
   checklist.appendChild(li);
 }
 
-
 /* ---------- CORE TASKS (IMMORTAL) ---------- */
 function ensureCoreTasks() {
   ["Brush teeth", "Wash face"].forEach(task => {
@@ -103,7 +118,8 @@ function saveTodayTasks() {
   }
 
   renderCalendar();
-  renderBadges();
+  checkBadges();    // check for new badges
+  renderBadges();   // update UI
 }
 
 /* ---------- CALENDAR ---------- */
@@ -147,13 +163,13 @@ function loadTodayTasks() {
   const today = getToday();
   checklist.innerHTML = "";
 
-  // 1️⃣ Load persistent tasks (core + user-added)
+  // Load persistent tasks (core + user-added)
   persistentTasks.forEach(task => {
     const removable = task !== "Brush teeth" && task !== "Wash face";
     addTask(task, removable, true);
   });
 
-  // 2️⃣ Load today's generated tasks
+  // Load today's generated tasks
   if (dayTasks[today]) {
     dayTasks[today].forEach(t => {
       const exists = getExistingTaskNames().includes(t.name);
@@ -168,38 +184,7 @@ function loadTodayTasks() {
   }
 }
 
-
-
 /* ---------- BADGES ---------- */
-const badgeList = [
-  { id: 0, name: "Beginner 🐣" },  // added beginner badge
-  { id: 1, name: "First Day!" },
-  { id: 7, name: "7-Day Streak!" },
-  { id: 14, name: "14-Day Legend!" }
-];
-
-// Initialize earned badges once
-let earnedBadges = JSON.parse(localStorage.getItem("earnedBadges") || "[]");
-
-// Award beginner badge if not already earned
-if (!earnedBadges.includes(0)) {
-  earnedBadges.push(0);
-  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
-}
-
-function checkBadges() {
-  const days = completedDays.length;
-
-  badgeList.forEach(b => {
-    if (b.id !== 0 && days >= b.id && !earnedBadges.includes(b.id)) {
-      earnedBadges.push(b.id);
-    }
-  });
-
-  // Save all earned badges
-  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
-}
-
 function renderBadges() {
   const box = document.getElementById("badges");
   box.innerHTML = "";
@@ -214,6 +199,15 @@ function renderBadges() {
   });
 }
 
+function checkBadges() {
+  const days = completedDays.length;
+  badgeList.forEach(b => {
+    if (b.id !== 0 && days >= b.id && !earnedBadges.includes(b.id)) {
+      earnedBadges.push(b.id);
+    }
+  });
+  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
+}
 
 /* ---------- QUOTES ---------- */
 const soups = [
@@ -243,12 +237,12 @@ document.getElementById("closeModalBtn").onclick = () => modal.classList.add("hi
 document.getElementById("generatePlanConfirm").onclick = () => {
   ensureCoreTasks();
 
- // Generated tasks are DAILY only (persistent = false)
-if (document.getElementById("qExercise").value === "yes") addTask("Shower after exercise", false, false);
-if (document.getElementById("qSweat").value === "yes") addTask("Extra shower", false, false);
-if (document.getElementById("qOutdoor").value === "yes") addTask("Clean face after outdoor", false, false);
-if (document.getElementById("qMakeup").value === "yes") addTask("Remove makeup", false, false);
-addTask("Skincare", false, false);
+  // Generated tasks are DAILY only (persistent = false)
+  if (document.getElementById("qExercise").value === "yes") addTask("Shower after exercise", false, false);
+  if (document.getElementById("qSweat").value === "yes") addTask("Extra shower", false, false);
+  if (document.getElementById("qOutdoor").value === "yes") addTask("Clean face after outdoor", false, false);
+  if (document.getElementById("qMakeup").value === "yes") addTask("Remove makeup", false, false);
+  addTask("Skincare", false, false);
 
   modal.classList.add("hidden");
 };
@@ -262,24 +256,11 @@ document.getElementById("addTodoBtn").onclick = () => {
   saveTodayTasks();
 };
 
-/* ---------- INIT ---------- */
-ensureCoreTasks();
-loadTodayTasks();
-updateXPUI();
-renderCalendar();
-checkBadges();    // award beginner badge and others
-renderBadges();   // now badges appear in the card
-
-if (!dayTasks[getToday()]) {
-  modal.classList.remove("hidden");
-}
-
 /* ---------- RESET BUTTON ---------- */
 document.getElementById("resetBtn").onclick = () => {
   const confirmReset = confirm(
     "This will remove ALL checklist records, calendar history, XP, and badges.\nAre you sure?"
   );
-
   if (!confirmReset) return;
 
   // Clear storage
@@ -288,6 +269,7 @@ document.getElementById("resetBtn").onclick = () => {
   localStorage.removeItem("rewardedDays");
   localStorage.removeItem("earnedBadges");
   localStorage.removeItem("xp");
+  localStorage.removeItem("persistentTasks");
 
   // Reset in-memory state
   dayTasks = {};
@@ -295,6 +277,7 @@ document.getElementById("resetBtn").onclick = () => {
   rewardedDays = [];
   earnedBadges = [];
   xp = 0;
+  persistentTasks = [];
 
   // Reset UI
   checklist.innerHTML = "";
@@ -305,4 +288,16 @@ document.getElementById("resetBtn").onclick = () => {
 
   alert("All records have been reset 🌱");
 };
+
+/* ---------- INIT ---------- */
+ensureCoreTasks();
+loadTodayTasks();
+updateXPUI();
+renderCalendar();
+checkBadges();    // award beginner badge and others
+renderBadges();
+
+if (!dayTasks[getToday()]) {
+  modal.classList.remove("hidden");
+}
 
