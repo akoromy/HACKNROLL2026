@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CStinky 🧼</title>
+
+  <!-- confetti lib -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1>CStinky 🧼</h1>
+  <div id="xpContainer"><div id="xpBar"></div></div>
+  <div id="levelText">Level 1</div>
+</header>
+
+<nav>
+  <button data-tab="today">Today</button>
+  <button data-tab="calendar">Calendar</button>
+  <button data-tab="badges">Badges</button>
+  <button data-tab="game">Game</button>
+  <button data-tab="profile">Profile</button>
+</nav>
+
+<main>
+  <!-- TODAY -->
+  <section id="today" class="tab active">
+    <h2>Today's Habits</h2>
+    <div id="habitList"></div>
+    <button id="completeDayBtn" class="primary">Complete Day</button>
+  </section>
+
+  <!-- CALENDAR -->
+  <section id="calendar" class="tab">
+    <div class="calendar-header">
+      <button id="prevMonthBtn">◀</button>
+      <span id="monthLabel"></span>
+      <button id="nextMonthBtn">▶</button>
+    </div>
+    <div id="calendarGrid"></div>
+  </section>
+
+  <!-- BADGES -->
+  <section id="badges" class="tab">
+    <h2>Achievements</h2>
+    <div id="badgeList"></div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="tab">
+    <h2>Hygiene Run</h2>
+    <div class="game-wrapper">
+      <canvas id="gameCanvas" width="360" height="200"></canvas>
+      <div class="game-controls">
+        <button id="startGameBtn">Start</button>
+        <button id="stopGameBtn" disabled>Stop</button>
+        <p class="hint">Press <b>SPACE</b> to jump</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile" class="tab">
+    <h2>Profile / Plan</h2>
+
+    <label>Motivation style</label>
+    <select id="motivation">
+      <option>Funny</option>
+      <option>Gentle</option>
+      <option>Threatening</option>
+    </select>
+
+    <h3>Add custom habit</h3>
+    <input id="newHabit" placeholder="e.g. Floss" />
+    <button id="addHabitBtn">Add</button>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
