@@ -30,11 +30,11 @@ function getExistingTaskNames() {
   return [...checklist.querySelectorAll("input")].map(cb => cb.dataset.task);
 }
 
-function addTask(task, removable = false) {
+function addTask(task, removable = false, persistent = true) {
   if (getExistingTaskNames().includes(task)) return;
 
-  // Save to persistent tasks
-  if (!persistentTasks.includes(task)) {
+  // Only save in persistentTasks if it's persistent
+  if (persistent && !persistentTasks.includes(task)) {
     persistentTasks.push(task);
     localStorage.setItem("persistentTasks", JSON.stringify(persistentTasks));
   }
@@ -54,11 +54,10 @@ function addTask(task, removable = false) {
   if (removable) {
     li.querySelector(".todo-remove").onclick = () => {
       li.remove();
-
-      // Remove from persistent tasks
-      persistentTasks = persistentTasks.filter(t => t !== task);
-      localStorage.setItem("persistentTasks", JSON.stringify(persistentTasks));
-
+      if (persistent) {
+        persistentTasks = persistentTasks.filter(t => t !== task);
+        localStorage.setItem("persistentTasks", JSON.stringify(persistentTasks));
+      }
       saveTodayTasks();
     };
   }
@@ -148,20 +147,27 @@ function loadTodayTasks() {
   const today = getToday();
   checklist.innerHTML = "";
 
-  // 1. Render ALL persistent tasks
+  // 1️⃣ Load persistent tasks (core + user-added)
   persistentTasks.forEach(task => {
     const removable = task !== "Brush teeth" && task !== "Wash face";
-    addTask(task, removable);
+    addTask(task, removable, true);
   });
 
-  // 2. Apply today's completion state
+  // 2️⃣ Load today's generated tasks
   if (dayTasks[today]) {
     dayTasks[today].forEach(t => {
+      const exists = getExistingTaskNames().includes(t.name);
+      if (!exists) {
+        // DAILY only tasks
+        addTask(t.name, false, false);
+      }
+      // Set checkbox
       const cb = checklist.querySelector(`input[data-task="${t.name}"]`);
       if (cb) cb.checked = t.done;
     });
   }
 }
+
 
 
 /* ---------- BADGES ---------- */
@@ -223,12 +229,13 @@ document.getElementById("closeModalBtn").onclick = () => modal.classList.add("hi
 document.getElementById("generatePlanConfirm").onclick = () => {
   ensureCoreTasks();
 
-  if (document.getElementById("qExercise").value === "yes") addTask("Shower after exercise");
-  if (document.getElementById("qSweat").value === "yes") addTask("Extra shower");
-  if (document.getElementById("qOutdoor").value === "yes") addTask("Clean face after outdoor");
-  if (document.getElementById("qMakeup").value === "yes") addTask("Remove makeup");
+ // Generated tasks are DAILY only (persistent = false)
+if (document.getElementById("qExercise").value === "yes") addTask("Shower after exercise", false, false);
+if (document.getElementById("qSweat").value === "yes") addTask("Extra shower", false, false);
+if (document.getElementById("qOutdoor").value === "yes") addTask("Clean face after outdoor", false, false);
+if (document.getElementById("qMakeup").value === "yes") addTask("Remove makeup", false, false);
+addTask("Skincare", false, false);
 
-  addTask("Skincare");
   modal.classList.add("hidden");
 };
 
