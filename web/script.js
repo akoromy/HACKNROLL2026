@@ -191,14 +191,22 @@ function renderBadges() {
   });
 }
 function checkBadges() {
+  // Award beginner badge automatically
+  if (!earnedBadges.includes(0)) {
+    earnedBadges.push(0);
+  }
+
   const days = completedDays.length;
   badgeList.forEach(b => {
-    if (days >= b.id && !earnedBadges.includes(b.id)) {
+    if (b.id !== 0 && days >= b.id && !earnedBadges.includes(b.id)) {
       earnedBadges.push(b.id);
-      localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
     }
   });
+
+  // Save all earned badges
+  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
 }
+
 
 
 /* ---------- QUOTES ---------- */
