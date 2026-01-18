@@ -291,3 +291,39 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.classList.remove("hidden");
   }
 });
+
+/* ---------- CUSTOM TODO INPUT ---------- */
+const addTodoBtn = document.getElementById("addTodoBtn");
+const customTodoInput = document.getElementById("customTodoInput");
+
+if (addTodoBtn && customTodoInput) {
+  addTodoBtn.onclick = () => {
+    const text = customTodoInput.value.trim();
+    if (!text) return;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <label>
+        <input type="checkbox" data-task="${text}">
+        ${text}
+      </label>
+      <span class="todo-remove">✖</span>
+    `;
+
+    // remove button
+    li.querySelector(".todo-remove").onclick = () => {
+      li.remove();
+      saveTodayTasks(); // keep calendar & XP correct
+    };
+
+    // checkbox change should still update streak / XP
+    li.querySelector("input").onchange = () => {
+      saveTodayTasks();
+    };
+
+    checklist.appendChild(li);
+    customTodoInput.value = "";
+
+    saveTodayTasks();
+  };
+}
