@@ -10,6 +10,7 @@ let completedDays = JSON.parse(localStorage.getItem("completedDays") || "[]");
 let rewardedDays = JSON.parse(localStorage.getItem("rewardedDays") || "[]");
 let earnedBadges = JSON.parse(localStorage.getItem("earnedBadges") || "[]");
 let xp = parseInt(localStorage.getItem("xp") || "0");
+let persistentTasks = JSON.parse(localStorage.getItem("persistentTasks") || "[]");
 
 /* ---------- DOM ---------- */
 const checklist = document.getElementById("checklist");
@@ -32,6 +33,12 @@ function getExistingTaskNames() {
 function addTask(task, removable = false) {
   if (getExistingTaskNames().includes(task)) return;
 
+  // Save to persistent tasks
+  if (!persistentTasks.includes(task)) {
+    persistentTasks.push(task);
+    localStorage.setItem("persistentTasks", JSON.stringify(persistentTasks));
+  }
+
   const li = document.createElement("li");
   li.innerHTML = `
     <label>
@@ -47,6 +54,11 @@ function addTask(task, removable = false) {
   if (removable) {
     li.querySelector(".todo-remove").onclick = () => {
       li.remove();
+
+      // Remove from persistent tasks
+      persistentTasks = persistentTasks.filter(t => t !== task);
+      localStorage.setItem("persistentTasks", JSON.stringify(persistentTasks));
+
       saveTodayTasks();
     };
   }
@@ -54,10 +66,15 @@ function addTask(task, removable = false) {
   checklist.appendChild(li);
 }
 
+
 /* ---------- CORE TASKS (IMMORTAL) ---------- */
 function ensureCoreTasks() {
-  addTask("Brush teeth");
-  addTask("Wash face");
+  ["Brush teeth", "Wash face"].forEach(task => {
+    if (!persistentTasks.includes(task)) {
+      persistentTasks.push(task);
+    }
+  });
+  localStorage.setItem("persistentTasks", JSON.stringify(persistentTasks));
 }
 
 /* ---------- SAVE ---------- */
@@ -131,18 +148,21 @@ function loadTodayTasks() {
   const today = getToday();
   checklist.innerHTML = "";
 
-  // Always restore saved tasks
+  // 1. Render ALL persistent tasks
+  persistentTasks.forEach(task => {
+    const removable = task !== "Brush teeth" && task !== "Wash face";
+    addTask(task, removable);
+  });
+
+  // 2. Apply today's completion state
   if (dayTasks[today]) {
     dayTasks[today].forEach(t => {
-      addTask(t.name, t.name !== "Brush teeth" && t.name !== "Wash face");
       const cb = checklist.querySelector(`input[data-task="${t.name}"]`);
       if (cb) cb.checked = t.done;
     });
   }
-
-  // Ensure core tasks NEVER disappear
-  ensureCoreTasks();
 }
+
 
 /* ---------- BADGES ---------- */
 const badgeList = [
