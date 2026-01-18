@@ -232,5 +232,4 @@ if (!dayTasks[getToday()]) {
   modal.classList.remove("hidden");
 }
 
-});
 
