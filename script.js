@@ -127,6 +127,23 @@ function renderCalendar() {
   }
 }
 
+function loadTodayTasks() {
+  const today = getToday();
+  checklist.innerHTML = "";
+
+  // Always restore saved tasks
+  if (dayTasks[today]) {
+    dayTasks[today].forEach(t => {
+      addTask(t.name, t.name !== "Brush teeth" && t.name !== "Wash face");
+      const cb = checklist.querySelector(`input[data-task="${t.name}"]`);
+      if (cb) cb.checked = t.done;
+    });
+  }
+
+  // Ensure core tasks NEVER disappear
+  ensureCoreTasks();
+}
+
 /* ---------- BADGES ---------- */
 const badgeList = [
   { id: 1, name: "First Day!" },
@@ -147,6 +164,16 @@ function renderBadges() {
     }
   });
 }
+function checkBadges() {
+  const days = completedDays.length;
+  badgeList.forEach(b => {
+    if (days >= b.id && !earnedBadges.includes(b.id)) {
+      earnedBadges.push(b.id);
+      localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
+    }
+  });
+}
+
 
 /* ---------- QUOTES ---------- */
 const soups = [
@@ -196,12 +223,14 @@ document.getElementById("addTodoBtn").onclick = () => {
 
 /* ---------- INIT ---------- */
 ensureCoreTasks();
+loadTodayTasks();
 updateXPUI();
 renderCalendar();
 renderBadges();
 
-if (!dayTasks[getToday()]) modal.classList.remove("hidden");
-
+if (!dayTasks[getToday()]) {
+  modal.classList.remove("hidden");
+}
 
 });
 
