@@ -1,3 +1,12 @@
+// Load or initialize earned badges
+let earnedBadges = JSON.parse(localStorage.getItem("earnedBadges") || "[]");
+
+// Award beginner badge if not already earned
+if (!earnedBadges.includes(0)) {
+  earnedBadges.push(0);
+  localStorage.setItem("earnedBadges", JSON.stringify(earnedBadges));
+}
+
 /* ---------- DATE ---------- */
 function getToday() {
   const d = new Date();
