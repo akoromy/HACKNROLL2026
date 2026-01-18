@@ -261,7 +261,8 @@ ensureCoreTasks();
 loadTodayTasks();
 updateXPUI();
 renderCalendar();
-renderBadges();
+checkBadges();    // award beginner badge and others
+renderBadges();   // now badges appear in the card
 
 if (!dayTasks[getToday()]) {
   modal.classList.remove("hidden");
