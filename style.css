@@ -263,3 +263,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const today = getToday();
   if (!dayTasks[today]) modal.classList.remove("hidden");
 });
+
+    .add-todo {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-todo input {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.add-todo button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #6c8cff;
+  color: white;
+}
+
+.todo-remove {
+  margin-left: 8px;
+  cursor: pointer;
+  color: #ff4d4d;
+  font-weight: bold;
+}
